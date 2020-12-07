@@ -63,7 +63,6 @@ def delete_data():
     try:
         cursor.execute(sql)
         db.commit()
-        cursor.close()
     except Exception:
         db.rollback()
     print("Deleted Successfully")
@@ -71,9 +70,6 @@ def delete_data():
 
 #function to convert to csv
 def convert_csv():
-    #df = open(r"Saves\phonebook.csv",'wb')
-    #df.close()
-    #df = pd.read_csv(r'Saves\phonebook.csv')
     df = pd.DataFrame()
     sql = """SELECT * FROM CONTACTS"""
     cursor.execute(sql)
@@ -83,7 +79,6 @@ def convert_csv():
         df2 = {'First_name': row[1], 'Last_name': row[2], 'Mobile_no': row[3]}
         df = df.append(df2, ignore_index=True)
         df.to_csv(r'Saves\phonebook.csv', index=False, header=True)
-    cursor.close()
     return df
 
 
