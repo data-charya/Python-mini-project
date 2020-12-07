@@ -11,7 +11,12 @@ import json
 
 
 #connecting to the database
-db = pymysql.connect('localhost', 'root', None, 'contactbook')
+try:
+  db = pymysql.connect('localhost', 'root', None, 'contactbook')
+except Exception:
+  print("Failed to connect to server")
+  exit()
+  
 cursor = db.cursor()
 #dummy data
 df = {'First_name': [''],
