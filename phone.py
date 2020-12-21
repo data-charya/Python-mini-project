@@ -11,12 +11,7 @@ import json
 
 
 #connecting to the database
-try:
-  db = pymysql.connect('localhost', 'root', None, 'contactbook')
-except Exception:
-  print("Failed to connect to server")
-  exit()
-  
+db = pymysql.connect('localhost', 'root', None, 'contactbook')
 cursor = db.cursor()
 #dummy data
 df = {'First_name': [''],
@@ -63,6 +58,7 @@ def delete_data():
     try:
         cursor.execute(sql)
         db.commit()
+        cursor.close()
     except Exception:
         db.rollback()
     print("Deleted Successfully")
@@ -70,6 +66,9 @@ def delete_data():
 
 #function to convert to csv
 def convert_csv():
+    #df = open(r"Saves\phonebook.csv",'wb')
+    #df.close()
+    #df = pd.read_csv(r'Saves\phonebook.csv')
     df = pd.DataFrame()
     sql = """SELECT * FROM CONTACTS"""
     cursor.execute(sql)
@@ -78,7 +77,12 @@ def convert_csv():
     for row in rows:
         df2 = {'First_name': row[1], 'Last_name': row[2], 'Mobile_no': row[3]}
         df = df.append(df2, ignore_index=True)
-        df.to_csv(r'Saves\phonebook.csv', index=False, header=True)
+    outputFile = open('Saves\phonebook.csv', 'w', newline='')
+    outputWriter = csv.writer(outputFile)
+    for index, row in df.iterrows(): 
+        outputWriter.writerow([row["First_name"], row["Last_name"], row["Mobile_no"]])    
+    speak("Successfully converted to csv.")
+    cursor.close()
     return df
 
 

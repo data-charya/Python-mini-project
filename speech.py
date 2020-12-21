@@ -1,8 +1,9 @@
 import speech_recognition as sr
-from gtts import gTTS
+import os
 import pyttsx3
 import yfinance as yf
 import time
+from gtts import gTTS
 from datetime import datetime
 import webbrowser
 import random
@@ -15,6 +16,7 @@ from docx2pdf import convert
 import PyPDF2 as pdf
 import os
 import json
+import csv
 
 class person:
     name = ''
@@ -22,21 +24,15 @@ class person:
         self.name = name
 
 #connecting to the database
-try:
-    db = pymysql.connect('localhost', 'root', None, 'contactbook')
-except Exception:
-    print("Failed to connect to server")
-    exit()
+db = pymysql.connect('localhost', 'root', None, 'contactbook')
 cursor = db.cursor()
+
+
 #dummy data
-df = {'First_name': [''],
+df = {       'First_name': [''],
              'Last_name': [''],
              'Mobile_no': []
              }
-
-
-
-
 
 #insert function
 def insert_data():
@@ -77,16 +73,14 @@ def delete_data():
     try:
         cursor.execute(sql)
         db.commit()
+        speak("Deleted Successfully")
     except Exception:
         db.rollback()
-    speak("Deleted Successfully")
+    
 
 
 #function to convert to csv
 def convert_csv():
-    #df = open(r"Saves\phonebook.csv",'wb')
-    #df.close()
-    #df = pd.read_csv(r'Saves\phonebook.csv')
     df = pd.DataFrame()
     sql = """SELECT * FROM CONTACTS"""
     cursor.execute(sql)
@@ -95,9 +89,11 @@ def convert_csv():
     for row in rows:
         df2 = {'First_name': row[1], 'Last_name': row[2], 'Mobile_no': row[3]}
         df = df.append(df2, ignore_index=True)
-        df.to_csv(r'Saves\phonebook.csv', index=False, header=True)
+    outputFile = open('Saves\phonebook.csv', 'w', newline='')
+    outputWriter = csv.writer(outputFile)
+    for index, row in df.iterrows(): 
+        outputWriter.writerow([row["First_name"], row["Last_name"], row["Mobile_no"]])    
     speak("Successfully converted to csv.")
-    return df
     
 
 
@@ -249,7 +245,7 @@ def respond(voice_data):
         speak(f'Here is what I found for {search_term} on youtube')
 
     # explaining the program
-    if there_exists(["explain","function","program","what are you"]):
+    if there_exists(["explain","function","program","what are you","who are you"]):
         #replace the content with the program
         explain = " I am a speech recognition system and im cool, i was built by Rakshraj, shanwill, rhea and pranith, these guys got them skills; i can convert data to excel,csv,json,pdf and word. I also connect to a database. Ain't i cool? I think i deserve a ten on ten."
         speak(explain)
